@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro de Clientes</title>
+<style>
+  :root {
+    --bg: #eef2f4;
+    --surface: #ffffff;
+    --text: #1b2a33;
+    --muted: #5d7280;
+    --line: #d3dde3;
+    --accent: #0f6b7a;
+    --accent-text: #ffffff;
+    --danger: #b3321f;
+    --focus: #f2a516;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #11191e;
+      --surface: #1a252c;
+      --text: #e6eef2;
+      --muted: #94a8b4;
+      --line: #2d3d47;
+      --accent: #3fb6c8;
+      --accent-text: #08212a;
+      --danger: #ff8a75;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+    display: grid;
+    gap: 28px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 860px) {
+    main { grid-template-columns: 340px 1fr; align-items: start; }
+  }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 0 0 16px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  header { grid-column: 1 / -1; }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+  }
+  label { display: block; font-weight: 600; font-size: .92rem; margin-bottom: 6px; }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  input:focus-visible, button:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .actions { display: flex; gap: 10px; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-text);
+    cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--accent); }
+  button.small { padding: 5px 10px; font-size: .85rem; }
+  button.danger { border-color: var(--danger); color: var(--danger); background: transparent; }
+  .msg { min-height: 1.4em; margin: 12px 0 0; font-size: .9rem; color: var(--accent); }
+  .msg.error { color: var(--danger); }
+  .search { margin-bottom: 14px; }
+  .search input { margin: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 520px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .85rem; color: var(--muted); font-weight: 600; }
+  td.row-actions { white-space: nowrap; display: flex; gap: 6px; }
+  .empty { color: var(--muted); padding: 18px 0 4px; }
+  @media (prefers-reduced-motion: no-preference) {
+    button { transition: opacity .15s; }
+    button:hover { opacity: .88; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Cadastro de clientes</h1>
+    <p class="sub">Registre o nome, a data de nascimento e o endereço de cada cliente.</p>
+  </header>
+
+  <section aria-labelledby="titulo-form">
+    <h2 id="titulo-form">Novo cliente</h2>
+    <div id="form" role="group" aria-labelledby="titulo-form">
+      <label for="nome">Nome completo</label>
+      <input id="nome" type="text" autocomplete="off" maxlength="120">
+
+      <label for="nascimento">Data de nascimento</label>
+      <input id="nascimento" type="date">
+
+      <label for="endereco">Endereço</label>
+      <input id="endereco" type="text" autocomplete="off" maxlength="200" placeholder="Rua, número, bairro, cidade">
+
+      <div class="actions">
+        <button id="salvar" type="button">Salvar cliente</button>
+        <button id="cancelar" type="button" class="ghost" hidden>Cancelar edição</button>
+      </div>
+      <p id="msg" class="msg" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="titulo-lista">
+    <h2 id="titulo-lista">Clientes cadastrados (<span id="contador">0</span>)</h2>
+    <div class="search">
+      <label for="busca" class="sr" style="position:absolute;left:-9999px">Buscar cliente</label>
+      <input id="busca" type="search" placeholder="Buscar por nome ou endereço">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>Nascimento</th><th>Endereço</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </div>
+    <p id="vazio" class="empty" hidden>Nenhum cliente cadastrado ainda. Preencha o formulário para adicionar o primeiro.</p>
+  </section>
+</main>
+
+<script>
+  const CHAVE = "cadastro-clientes";
+  let clientes = [];
+  let editandoId = null;
+
+  const $ = (id) => document.getElementById(id);
+  const campos = { nome: $("nome"), nascimento: $("nascimento"), endereco: $("endereco") };
+
+  function carregar() {
+    try {
+      clientes = JSON.parse(localStorage.getItem(CHAVE)) || [];
+    } catch (e) {
+      clientes = [];
+    }
+  }
+
+  function persistir() {
+    try {
+      localStorage.setItem(CHAVE, JSON.stringify(clientes));
+    } catch (e) {
+      mostrar("Não foi possível salvar os dados neste navegador.", true);
+    }
+  }
+
+  function mostrar(texto, erro) {
+    const el = $("msg");
+    el.textContent = texto;
+    el.className = "msg" + (erro ? " error" : "");
+  }
+
+  function formatarData(iso) {
+    if (!iso) return "";
+    const [a, m, d] = iso.split("-");
+    return d + "/" + m + "/" + a;
+  }
+
+  function escapar(s) {
+    const div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function desenhar() {
+    const termo = $("busca").value.trim().toLowerCase();
+    const filtrados = clientes.filter((c) =>
+      (c.nome + " " + c.endereco).toLowerCase().includes(termo)
+    );
+    $("contador").textContent = clientes.length;
+    $("vazio").hidden = clientes.length > 0;
+    $("lista").innerHTML = filtrados.map((c) => `
+      <tr>
+        <td>${escapar(c.nome)}</td>
+        <td>${formatarData(c.nascimento)}</td>
+        <td>${escapar(c.endereco)}</td>
+        <td class="row-actions">
+          <button type="button" class="small ghost" data-acao="editar" data-id="${c.id}">Editar</button>
+          <button type="button" class="small danger" data-acao="excluir" data-id="${c.id}">Excluir</button>
+        </td>
+      </tr>`).join("");
+  }
+
+  function limparFormulario() {
+    campos.nome.value = "";
+    campos.nascimento.value = "";
+    campos.endereco.value = "";
+    editandoId = null;
+    $("salvar").textContent = "Salvar cliente";
+    $("cancelar").hidden = true;
+    $("titulo-form").textContent = "Novo cliente";
+  }
+
+  function salvar() {
+    const nome = campos.nome.value.trim();
+    const nascimento = campos.nascimento.value;
+    const endereco = campos.endereco.value.trim();
+    const hoje = new Date().toISOString().slice(0, 10);
+
+    if (!nome) return mostrar("Informe o nome do cliente.", true), campos.nome.focus();
+    if (!nascimento) return mostrar("Informe a data de nascimento.", true), campos.nascimento.focus();
+    if (nascimento > hoje) return mostrar("A data de nascimento não pode estar no futuro.", true), campos.nascimento.focus();
+    if (!endereco) return mostrar("Informe o endereço.", true), campos.endereco.focus();
+
+    if (editandoId) {
+      const c = clientes.find((x) => x.id === editandoId);
+      if (c) Object.assign(c, { nome, nascimento, endereco });
+      mostrar("Cliente atualizado.");
+    } else {
+      clientes.push({ id: String(Date.now()), nome, nascimento, endereco });
+      mostrar("Cliente salvo.");
+    }
+    persistir();
+    limparFormulario();
+    desenhar();
+  }
+
+  $("salvar").addEventListener("click", salvar);
+  $("cancelar").addEventListener("click", () => { limparFormulario(); mostrar(""); });
+  $("busca").addEventListener("input", desenhar);
+  document.querySelectorAll("#form input").forEach((i) =>
+    i.addEventListener("keydown", (e) => { if (e.key === "Enter") salvar(); })
+  );
+
+  $("lista").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-acao]");
+    if (!btn) return;
+    const c = clientes.find((x) => x.id === btn.dataset.id);
+    if (!c) return;
+
+    if (btn.dataset.acao === "editar") {
+      editandoId = c.id;
+      campos.nome.value = c.nome;
+      campos.nascimento.value = c.nascimento;
+      campos.endereco.value = c.endereco;
+      $("salvar").textContent = "Salvar alterações";
+      $("cancelar").hidden = false;
+      $("titulo-form").textContent = "Editar cliente";
+      mostrar("");
+      campos.nome.focus();
+    } else if (confirm("Excluir o cliente " + c.nome + "?")) {
+      clientes = clientes.filter((x) => x.id !== c.id);
+      persistir();
+      if (editandoId === c.id) limparFormulario();
+      desenhar();
+      mostrar("Cliente excluído.");
+    }
+  });
+
+  carregar();
+  desenhar();
+</script>
+</body>
+</html>
