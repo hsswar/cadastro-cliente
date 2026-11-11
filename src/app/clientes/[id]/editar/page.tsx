@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { BarraTitulo } from "@/components/BarraTitulo";
 import { ClienteForm } from "@/components/ClienteForm";
 import { prisma } from "@/lib/prisma";
 import { paraISO } from "@/lib/validacao";
@@ -10,10 +11,10 @@ export const metadata: Metadata = { title: "Editar cliente | Cadastro de Cliente
 
 export default function EditarClientePage(props: PageProps<"/clientes/[id]/editar">) {
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="text-2xl font-semibold">Editar cliente</h1>
-      <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-        <Suspense fallback={<p className="text-sm text-gray-500">Carregando...</p>}>
+    <div className="space-y-4">
+      <BarraTitulo titulo="Editar cliente" />
+      <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <Suspense fallback={<p className="text-sm text-gray-600">Carregando...</p>}>
           <FormularioEdicao params={props.params} />
         </Suspense>
       </div>

@@ -1,4 +1,5 @@
 import Form from "next/form";
+import { IconeBusca } from "@/components/Icones";
 
 export function BuscaClientes({ termo }: { termo: string }) {
   return (
@@ -12,12 +13,13 @@ export function BuscaClientes({ termo }: { termo: string }) {
         type="search"
         defaultValue={termo}
         placeholder="Buscar por nome..."
-        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
+        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-200"
       />
       <button
         type="submit"
-        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+        className="flex items-center gap-1.5 rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
       >
+        <IconeBusca className="text-base" />
         Buscar
       </button>
     </Form>

@@ -95,7 +95,7 @@ export function ClienteForm({ acao, valoresIniciais = {}, textoBotao }: Props) {
         <button
           type="submit"
           disabled={pendente}
-          className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:opacity-60"
+          className="rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-60"
         >
           {pendente ? "Salvando..." : textoBotao}
         </button>
@@ -135,6 +135,6 @@ function classeInput(comErro: boolean) {
     "block w-full rounded-md border px-3 py-2 text-gray-900 shadow-sm focus:outline-none focus:ring-2",
     comErro
       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-      : "border-gray-300 focus:border-red-500 focus:ring-red-200",
+      : "border-gray-300 focus:border-brand-600 focus:ring-brand-200",
   ].join(" ");
 }

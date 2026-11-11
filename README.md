@@ -6,6 +6,8 @@ Sistema web para cadastrar, listar, buscar, editar e excluir clientes (nome, dat
 
 ## Funcionalidades
 
+- **Dashboard** na tela principal: total de clientes, novos cadastros e aniversariantes por período (hoje, 7 dias, mês, mês anterior ou intervalo livre), idade média, indicadores, próximos aniversariantes e gráficos
+- Menu principal com **Dashboard** e **Cadastros → Clientes**
 - Cadastro, edição e exclusão (com confirmação) de clientes
 - Listagem ordenada por nome, com busca por nome (sem diferenciar maiúsculas/minúsculas)
 - Validação no navegador e no servidor:
@@ -85,19 +87,26 @@ prisma/
   migrations/            # migrations versionadas
 src/
   app/
-    layout.tsx           # layout base (pt-BR)
-    page.tsx             # redireciona para /clientes
+    layout.tsx           # layout base: cabeçalho, menu principal (pt-BR)
+    page.tsx             # Dashboard (tela principal)
+    error.tsx            # mensagem amigável se o banco falhar
+    globals.css          # Tailwind + cores do tema (--color-brand-*)
     clientes/
       page.tsx           # listagem + busca
       actions.ts         # Server Actions: criar, atualizar, excluir
-      error.tsx          # mensagem amigável se o banco falhar
       novo/page.tsx      # cadastro
       [id]/editar/page.tsx
   components/
+    MenuPrincipal.tsx    # menu escuro com submenu Cadastros
+    BarraTitulo.tsx      # faixa verde de título das telas
     ClienteForm.tsx      # formulário com exibição de erros
     BuscaClientes.tsx    # campo de busca
     BotaoExcluir.tsx     # exclusão com confirmação
+    Icones.tsx           # ícones SVG
+    dashboard/           # cartões e gráficos do dashboard
   lib/
     prisma.ts            # instância do Prisma Client
     validacao.ts         # regras de validação (Zod) e utilitários de data
+    dashboard.ts         # cálculos do dashboard (períodos, idades, aniversários)
+docs/design/             # imagens de referência (ignorada pelo Git)
 ```

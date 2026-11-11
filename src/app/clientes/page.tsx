@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BarraTitulo } from "@/components/BarraTitulo";
 import { BotaoExcluir } from "@/components/BotaoExcluir";
 import { BuscaClientes } from "@/components/BuscaClientes";
+import { IconeMais } from "@/components/Icones";
 import { prisma } from "@/lib/prisma";
 import { formatarData } from "@/lib/validacao";
+
+export const metadata: Metadata = { title: "Clientes | Cadastro de Clientes" };
 
 const MENSAGENS_SUCESSO: Record<string, string> = {
   criado: "Cliente cadastrado com sucesso.",
@@ -12,18 +17,10 @@ const MENSAGENS_SUCESSO: Record<string, string> = {
 
 export default function ClientesPage(props: PageProps<"/clientes">) {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold">Clientes</h1>
-        <Link
-          href="/clientes/novo"
-          className="rounded-md bg-red-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-red-700"
-        >
-          Novo cliente
-        </Link>
-      </div>
+    <div className="space-y-4">
+      <BarraTitulo titulo="Clientes" />
 
-      <Suspense fallback={<p className="text-sm text-gray-500">Carregando clientes...</p>}>
+      <Suspense fallback={<p className="p-4 text-sm text-gray-600">Carregando clientes...</p>}>
         <ConteudoClientes searchParams={props.searchParams} />
       </Suspense>
     </div>
@@ -47,19 +44,34 @@ async function ConteudoClientes({
   return (
     <div className="space-y-4">
       {sucesso && (
-        <p role="status" className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+        <p role="status" className="rounded-md border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800">
           {sucesso}
         </p>
       )}
 
-      <BuscaClientes termo={termo} />
+      {/* Barra de ações: busca + novo cliente */}
+      <section
+        aria-label="Busca e ações"
+        className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="sm:w-full sm:max-w-md">
+          <BuscaClientes termo={termo} />
+        </div>
+        <Link
+          href="/clientes/novo"
+          className="flex items-center justify-center gap-1.5 rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+        >
+          <IconeMais className="text-base" />
+          Novo cliente
+        </Link>
+      </section>
 
       {clientes.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600">
           {termo ? (
             <>
               Nenhum cliente encontrado para “{termo}”.{" "}
-              <Link href="/clientes" className="font-medium text-red-700 underline">
+              <Link href="/clientes" className="font-medium text-brand-700 underline">
                 Limpar busca
               </Link>
             </>
@@ -68,19 +80,19 @@ async function ConteudoClientes({
           )}
         </div>
       ) : (
-        <>
-          <p className="text-sm text-gray-600">
+        <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+          <p className="border-b border-gray-100 px-4 py-3 text-sm font-semibold text-gray-800">
             {clientes.length} {clientes.length === 1 ? "cliente" : "clientes"}
-            {termo && <> encontrados para “{termo}”</>}
+            {termo && <span className="font-normal text-gray-600"> encontrados para “{termo}”</span>}
           </p>
 
           {/* Celular: cartões */}
-          <ul className="space-y-3 md:hidden">
+          <ul className="divide-y divide-gray-100 md:hidden">
             {clientes.map((c) => (
-              <li key={c.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+              <li key={c.id} className="p-4">
                 <p className="font-medium">{c.nome}</p>
                 <p className="mt-1 text-sm text-gray-600">Nascimento: {formatarData(c.dataNascimento)}</p>
-                <p className="text-sm text-gray-600 break-words">{c.endereco}</p>
+                <p className="break-words text-sm text-gray-600">{c.endereco}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <LinkEditar id={c.id} />
                   <BotaoExcluir id={c.id} nome={c.nome} />
@@ -90,21 +102,21 @@ async function ConteudoClientes({
           </ul>
 
           {/* Desktop: tabela */}
-          <div className="hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm md:block">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50 text-left text-gray-700">
+          <div className="hidden overflow-x-auto md:block">
+            <table className="min-w-full text-sm">
+              <thead className="bg-brand-50 text-left text-gray-800">
                 <tr>
-                  <th scope="col" className="px-4 py-3 font-medium">Nome</th>
-                  <th scope="col" className="px-4 py-3 font-medium whitespace-nowrap">Data de nascimento</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Endereço</th>
-                  <th scope="col" className="px-4 py-3 font-medium text-right">Ações</th>
+                  <th scope="col" className="px-4 py-3 font-semibold">Nome</th>
+                  <th scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">Data de nascimento</th>
+                  <th scope="col" className="px-4 py-3 font-semibold">Endereço</th>
+                  <th scope="col" className="px-4 py-3 text-right font-semibold">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {clientes.map((c) => (
-                  <tr key={c.id} className="align-top">
+                  <tr key={c.id} className="align-top hover:bg-brand-50/50">
                     <td className="px-4 py-3 font-medium">{c.nome}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{formatarData(c.dataNascimento)}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{formatarData(c.dataNascimento)}</td>
                     <td className="px-4 py-3 text-gray-700">{c.endereco}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap justify-end gap-2">
@@ -117,7 +129,7 @@ async function ConteudoClientes({
               </tbody>
             </table>
           </div>
-        </>
+        </section>
       )}
     </div>
   );
@@ -127,7 +139,7 @@ function LinkEditar({ id }: { id: string }) {
   return (
     <Link
       href={`/clientes/${id}/editar`}
-      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+      className="rounded-md border border-brand-600 px-3 py-1.5 text-sm font-medium text-brand-800 hover:bg-brand-50"
     >
       Editar
     </Link>

@@ -3,3 +3,15 @@
 @theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Cor principal do sistema. Para trocar o tema, altere só estes valores. */
+@theme {
+  --color-brand-50: #eefaf5;
+  --color-brand-100: #d5f3e6;
+  --color-brand-200: #a9e6cd;
+  --color-brand-400: #4fcc9f;
+  --color-brand-500: #2fbf8f;
+  --color-brand-600: #23a478;
+  --color-brand-700: #178a62;
+  --color-brand-800: #11704f;
+}

@@ -10,7 +10,7 @@ export default function ErroClientes({ reset }: { error: Error; reset: () => voi
       <button
         type="button"
         onClick={() => reset()}
-        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+        className="rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
       >
         Tentar novamente
       </button>
