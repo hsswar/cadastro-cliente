@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Conexão com pool (usada pela aplicação)
+  url       = env("DATABASE_URL")
+  // Conexão direta (usada pelas migrations)
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model Cliente {
+  id             String   @id @default(cuid())
+  nome           String   @db.VarChar(120)
+  dataNascimento DateTime @map("data_nascimento") @db.Date
+  endereco       String   @db.VarChar(255)
+  criadoEm       DateTime @default(now()) @map("criado_em")
+  atualizadoEm   DateTime @updatedAt @map("atualizado_em")
+
+  @@index([nome])
+  @@map("clientes")
+}
